@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual: Autenticação com Next-Auth v5, Prisma & GitHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <style>
+        /* Cor de destaque: Cinza (GitHub/Código) */
+        .sidebar-link.active { color: #9ca3af; font-weight: 600; border-left-color: #9ca3af; }
+        .dark .sidebar-link.active { color: #d1d5db; border-left-color: #d1d5db; }
+        .mobile-menu-item .item-number { transition: all 0.3s ease; }
+        .mobile-menu-item.active .item-number { background-color: #4b5563; color: white; }
+        .dark .mobile-menu-item.active .item-number { background-color: #9ca3af; color: #111827; }
+        .mobile-menu-item.expanded { background-color: #f3f4f6; }
+        .dark .mobile-menu-item.expanded { background-color: #374151; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-track { background: #f1f1f1; } .dark ::-webkit-scrollbar-track { background: #2d3748; } ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-gray-900 text-slate-800 dark:text-gray-200">
+    <button id="theme-toggle" class="fixed bottom-4 right-4 z-50 p-2 rounded-full bg-slate-200 dark:bg-gray-800 text-slate-900 dark:text-slate-100 shadow-md">
+        <svg id="theme-toggle-dark-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+        <svg id="theme-toggle-light-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+    </button>
+    
+    <div id="mobile-menu" class="lg:hidden fixed top-0 left-0 right-0 p-2 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg z-40"><div id="mobile-menu-items" class="flex items-center space-x-2 overflow-x-auto pb-1"></div></div>
+    <div class="flex">
+        <aside class="fixed top-0 left-0 h-screen w-64 p-4 border-r border-slate-200 dark:border-gray-800 hidden lg:block"><h2 class="text-xl font-bold mb-4">Índice Next-Auth</h2><nav><ol id="sidebar-nav" class="space-y-2"></ol></nav></aside>
+        <main class="w-full lg:ml-64 p-4 md:p-8 pt-20 lg:pt-8 pb-24">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-12"><h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white">Guia: Autenticação com Next-Auth v5, Prisma & GitHub</h1><p class="text-lg text-slate-600 dark:text-gray-400 mt-3">Um passo a passo completo para configurar um sistema de autenticação robusto.</p></header>
+                <div id="manual-content" class="space-y-16">
+                    
+                    <section id="step-1" class="manual-section">
+                        <h2 data-title="Visão Geral e Pré-requisitos" class="text-3xl font-bold border-b border-slate-200 dark:border-gray-700 pb-2 mb-4">1. Visão Geral e Pré-requisitos</h2>
+                        <p class="text-slate-600 dark:text-gray-400">Este guia detalha a configuração de um sistema de autenticação em uma aplicação Next.js, utilizando Next-Auth v5, Prisma ORM e o login social com GitHub.</p>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">✅ Pré-requisitos:</h3>
+                        <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li>Um projeto Next.js (App Router) já criado.</li>
+                            <li>Uma conta no <a href="https://github.com" target="_blank" class="text-indigo-400 hover:underline">GitHub</a>.</li>
+                            <li>Um banco de dados PostgreSQL pronto para uso (ex: <a href="https://neon.tech" target="_blank" class="text-indigo-400 hover:underline">Neon</a>, <a href="https://supabase.com" target="_blank" class="text-indigo-400 hover:underline">Supabase</a>).</li>
+                        </ul>
+                    </section>
+
+                    <section id="step-2" class="manual-section">
+                        <h2 data-title="Instalação das Dependências" class="text-3xl font-bold border-b border-slate-200 dark:border-gray-700 pb-2 mb-4">2. Instalação das Dependências</h2>
+                        <p class="text-slate-600 dark:text-gray-400">Começamos instalando todas as bibliotecas necessárias para o Next-Auth e o Prisma.</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-bash"># Instala o Next-Auth v5 (beta)
+npm install next-auth@beta
+
+# Instala as bibliotecas do Prisma
+npm install @prisma/client @auth/prisma-adapter
+npm install prisma --save-dev</code></pre>
+                        </div>
+                    </section>
+                    
+                    <section id="step-3" class="manual-section">
+                        <h2 data-title="Variáveis de Ambiente" class="text-3xl font-bold border-b border-slate-200 dark:border-gray-700 pb-2 mb-4">3. Configuração das Variáveis de Ambiente</h2>
+                        <p class="text-slate-600 dark:text-gray-400">A segurança da sua aplicação começa com o gerenciamento correto das suas chaves secretas.</p>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">3.1. Gerando a Chave Secreta</h3>
+                        <p>Rode o comando abaixo no seu terminal para gerar uma chave segura para o Next-Auth.</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-bash">npx auth secret</code></pre>
+                        </div>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">3.2. Configurando o Arquivo `.env`</h3>
+                        <p>Crie um arquivo <code>.env</code> na raiz do projeto e adicione a chave gerada, a URL do seu banco de dados e os placeholders para as chaves do GitHub.</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-ini"># .env - NÃO ENVIE ESTE ARQUIVO PARA O GITHUB
+
+# Chave gerada pelo comando 'npx auth secret'
+AUTH_SECRET="COLE_A_CHAVE_GERADA_PELO_COMANDO_AQUI"
+
+# URL de conexão do seu banco de dados (ex: do Neon)
+DATABASE_URL="postgresql://user:password@host:port/dbname?sslmode=require"
+    
+# Chaves do GitHub (você obterá no próximo passo)
+GITHUB_ID="SEU_CLIENT_ID_DO_GITHUB_AQUI"
+GITHUB_SECRET="SEU_CLIENT_SECRET_DO_GITHUB_AQUI"
+</code></pre>
+                        </div>
+                    </section>
+                    
+                    <section id="step-4" class="manual-section">
+                        <h2 data-title="Configuração do GitHub OAuth" class="text-3xl font-bold border-b border-slate-200 dark:border-gray-700 pb-2 mb-4">4. Configuração do App OAuth no GitHub</h2>
+                        <p class="text-slate-600 dark:text-gray-400">Para permitir o login com GitHub, você precisa registrar sua aplicação.</p>
+                        <ol class="list-decimal list-inside mt-4 space-y-2 pl-4">
+                            <li>Acesse a página de registro: <a href="https://github.com/settings/applications/new" target="_blank" class="text-indigo-400 hover:underline">github.com/settings/applications/new</a>.</li>
+                            <li>Preencha o nome e a URL da sua aplicação.</li>
+                            <li>No campo **"Authorization callback URL"**, use o valor abaixo para desenvolvimento local:</li>
+                        </ol>
+                        <div class="code-container relative my-4">
+                            <pre><code class="language-plaintext">http://localhost:3000/api/auth/callback/github</code></pre>
+                        </div>
+                        <p>Após registrar, o GitHub fornecerá um **Client ID** e um **Client Secret**. Copie esses valores e cole-os no seu arquivo `.env`.</p>
+                         <div class="mt-6 p-4 bg-red-900/50 border border-red-700 rounded-lg">
+                            <h4 class="font-semibold text-red-400">🛡️ AVISO DE SEGURANÇA CRÍTICO</h4>
+                            <p class="text-sm text-red-300 mt-1">O `GITHUB_SECRET` é extremamente sensível. Trate-o como uma senha e nunca o exponha publicamente ou em código do lado do cliente.</p>
+                        </div>
+                    </section>
+                    
+                    <section id="step-5" class="manual-section">
+                        <h2 data-title="Configuração do Next-Auth" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">5. Configuração Principal do Next-Auth</h2>
+                        <p class="text-slate-600 dark:text-gray-400">Crie o arquivo que conterá a lógica central de autenticação, conectando os provedores e o banco de dados.</p>
+                        <p class="mt-4 font-mono text-sm bg-gray-200 dark:bg-gray-800 p-1 rounded inline-block">📄 lib/auth.ts</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-typescript">import NextAuth from 'next-auth';
+import GitHub from "next-auth/providers/github";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma } from './prisma';
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+    secret: process.env.AUTH_SECRET,
+    adapter: PrismaAdapter(prisma),
+    providers: [
+        GitHub({
+            clientId: process.env.GITHUB_ID,
+            clientSecret: process.env.GITHUB_SECRET
+        })
+    ],
+    pages: {
+        signIn: '/auth/signin',
+    }
+});
+</code></pre>
+                        </div>
+
+                        <h3 class="text-xl font-semibold mt-8 mb-2">Rota da API do Next-Auth</h3>
+                        <p>Crie a rota "catch-all" que irá gerenciar todas as requisições de autenticação.</p>
+                        <p class="mt-4 font-mono text-sm bg-gray-200 dark:bg-gray-800 p-1 rounded inline-block">📄 app/api/auth/[...nextauth]/route.ts</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-typescript">import { handlers } from "@/lib/auth";
+export const { GET, POST } = handlers;
+</code></pre>
+                        </div>
+                    </section>
+
+                    <section id="step-6" class="manual-section">
+                        <h2 data-title="Configuração do Prisma" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">6. Configuração do Prisma ORM</h2>
+                        <p class="text-slate-600 dark:text-gray-400">Agora, vamos conectar o Prisma ao nosso banco de dados e definir o schema.</p>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">Cliente Prisma Singleton</h3>
+                        <p>Crie o arquivo `lib/prisma.ts`. Esta é uma boa prática para evitar criar múltiplas conexões com o banco em desenvolvimento.</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-typescript">import { PrismaClient } from "@prisma/client";
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+export const prisma = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+</code></pre>
+                        </div>
+
+                        <h3 class="text-xl font-semibold mt-8 mb-2">Schema do Banco de Dados</h3>
+                        <p>Cole o conteúdo abaixo no seu arquivo `prisma/schema.prisma`. Ele já inclui os modelos do Next-Auth e o modelo customizado `Donation`.</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-prisma">generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelos Requeridos pelo Next-Auth
+model Account { /* ... */ }
+model Session { /* ... */ }
+model User { /* ... */ }
+model VerificationToken { /* ... */ }
+
+// Seu modelo customizado
+model Donation {
+  id           String        @id @default(cuid())
+  amount       Int
+  // ... outros campos
+  userId       String
+  user         User          @relation("userDonations", fields: [userId], references: [id])
+}
+
+enum PaymentStatus { PENDING, PAID, FAILED }
+</code></pre>
+                        </div>
+                    </section>
+
+                    <section id="step-7" class="manual-section">
+                        <h2 data-title="Finalizando o Banco" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">7. Finalizando o Banco de Dados</h2>
+                        <p class="text-slate-600 dark:text-gray-400">Com o schema pronto, vamos aplicar as mudanças no seu banco de dados e gerar o cliente Prisma.</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-bash"># Formata o arquivo schema.prisma (boa prática)
+npx prisma format
+
+# Cria e aplica a migração no banco de dados
+npx prisma migrate dev
+
+# Gera o cliente Prisma com base no seu schema
+npx prisma generate
+</code></pre>
+                        </div>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">Verificação</h3>
+                        <p>Para visualizar e interagir com seu banco de dados, use o Prisma Studio:</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-bash">npx prisma studio</code></pre>
+                        </div>
+                        <p class="mt-4 text-slate-600 dark:text-gray-400">Sua aplicação agora está com o backend de autenticação totalmente configurado! O próximo passo é construir os componentes de UI para o login.</p>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hljs.highlightAll();
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const updateIcons = () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                } else {
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                }
+            };
+            updateIcons();
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateIcons();
+            });
+            const sections = document.querySelectorAll('.manual-section');
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const mobileMenu = document.getElementById('mobile-menu-items');
+            sections.forEach((section, index) => {
+                const id = section.id;
+                const title = section.querySelector('h2').dataset.title;
+                const step = index + 1;
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#${id}`;
+                a.textContent = `${step}. ${title}`;
+                a.className = 'sidebar-link block border-l-2 border-transparent pl-4 py-1 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors';
+                li.appendChild(a);
+                if (sidebarNav) sidebarNav.appendChild(li);
+                const mobileLink = document.createElement('a');
+                mobileLink.href = `#${id}`;
+                mobileLink.className = 'mobile-menu-item flex-shrink-0 flex items-center p-1 rounded-full bg-slate-200 dark:bg-gray-700 transition-all duration-300 ease-in-out';
+                mobileLink.innerHTML = `<span class="item-number flex items-center justify-center h-8 w-8 rounded-full font-bold text-slate-600 dark:text-gray-300">${step}</span><span class="item-title hidden ml-2 mr-2 font-semibold whitespace-nowrap text-sm">${title}</span>`;
+                if (mobileMenu) mobileMenu.appendChild(mobileLink);
+                [a, mobileLink].forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const headerOffset = 80;
+                        const elementPosition = section.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                        if (window.innerWidth < 1024) {
+                            document.querySelectorAll('.mobile-menu-item').forEach(item => {
+                                item.classList.remove('expanded', 'bg-gray-100', 'dark:bg-gray-900');
+                                item.querySelector('.item-title').classList.add('hidden');
+                            });
+                            mobileLink.classList.add('expanded', 'bg-gray-100', 'dark:bg-gray-900');
+                            mobileLink.querySelector('.item-title').classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+            document.querySelectorAll('.code-container pre').forEach(pre => {
+                const btn = document.createElement('button');
+                btn.textContent = 'Copiar';
+                btn.className = 'absolute top-2 right-2 px-2 py-1 text-xs rounded bg-gray-600 text-white hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-800 transition-colors opacity-50 hover:opacity-100';
+                pre.parentNode.insertBefore(btn, pre);
+                btn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(pre.querySelector('code').innerText).then(() => {
+                        btn.textContent = 'Copiado!';
+                        setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+                    });
+                });
+            });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    const sidebarLink = document.querySelector(`.sidebar-link[href="#${id}"]`);
+                    const mobileItem = document.querySelector(`.mobile-menu-item[href="#${id}"]`);
+                    if (entry.isIntersecting) {
+                        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                        if (sidebarLink) sidebarLink.classList.add('active');
+                        document.querySelectorAll('.mobile-menu-item').forEach(i => i.classList.remove('active'));
+                        if (mobileItem) mobileItem.classList.add('active');
+                        if(mobileItem && !mobileItem.classList.contains('expanded')) {
+                           mobileItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    }
+                });
+            }, { rootMargin: "-20% 0px -80% 0px" });
+            sections.forEach(section => observer.observe(section));
+        });
+    </script>
+</body>
+</html>

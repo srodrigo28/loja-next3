@@ -1,0 +1,58 @@
+<div class="project-card">
+  <img src="httpsa://exemplo.com/screenshot-do-projeto.png" alt="Screenshot do Projeto de Doações" class="project-image">
+  
+  <div class="project-info">
+    <h2 class="project-title">Plataforma de Doações com NextAuth</h2>
+    <p class="project-summary">
+      Uma aplicação full-stack que permite a usuários autenticados realizarem doações, com um dashboard para visualizar o histórico e status dos pagamentos.
+    </p>
+
+    <div class="tech-stack">
+      <span class="tech-tag nextjs">Next.js</span>
+      <span class="tech-tag react">React</span>
+      <span class="tech-tag typescript">TypeScript</span>
+      <span class="tech-tag prisma">Prisma</span>
+      <span class="tech-tag postgresql">PostgreSQL</span>
+      <span class="tech-tag tailwind">Tailwind CSS</span>
+    </div>
+
+    <button class="toggle-dossier-btn">Explorar Dossiê Técnico ▼</button>
+  </div>
+
+  <div class="collapsible-content">
+    <div class="dossier-section">
+      <h3>O Desafio</h3>
+      <p>Criar um sistema seguro e intuitivo para receber doações, onde a identidade do usuário e o histórico de transações fossem gerenciados de forma eficiente e segura.</p>
+    </div>
+    
+    <div class="dossier-section">
+      <h3>Arquitetura e Solução</h3>
+      <p>Utilizamos o Next.js para renderização SSR e otimização de rotas. O NextAuth.js foi integrado para uma autenticação social robusta com o GitHub. O Prisma serviu como nosso ORM para interagir com o banco de dados PostgreSQL, garantindo a tipagem de ponta a ponta.</p>
+    </div>
+
+    <div class="dossier-section">
+      <h3>Entregas por Tela</h3>
+      
+      <details class="screen-details">
+        <summary>Tela de Login / Autenticação</summary>
+        <ul>
+          <li>Integração com o provider do GitHub via NextAuth.js.</li>
+          <li>Callback customizado para normalizar e salvar os dados do perfil do usuário no banco.</li>
+          <li>Gerenciamento de sessão e tokens.</li>
+          <li>Páginas de erro e verificação customizadas.</li>
+        </ul>
+      </details>
+      
+      <details class="screen-details">
+        <summary>Dashboard do Usuário</summary>
+        <ul>
+          <li>Exibição do nome e imagem do usuário logado.</li>
+          <li>Formulário para submissão de novas doações.</li>
+          <li>Lista paginada do histórico de doações (valor, data, status).</li>
+          <li>Atualização do status do pagamento em tempo real (simulado ou via webhook).</li>
+        </ul>
+      </details>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de UX: Sistema de Agendamento v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <style>
+        /* Cor de destaque: Ciano (Tech/Agendamento) */
+        .sidebar-link.active { color: #0891b2; font-weight: 600; border-left-color: #0891b2; }
+        .dark .sidebar-link.active { color: #22d3ee; border-left-color: #22d3ee; }
+        .mobile-menu-item .item-number { transition: all 0.3s ease; }
+        .mobile-menu-item.active .item-number { background-color: #0891b2; color: white; }
+        .dark .mobile-menu-item.active .item-number { background-color: #22d3ee; color: #1e293b; }
+        .mobile-menu-item.expanded { background-color: #ecfeff; }
+        .dark .mobile-menu-item.expanded { background-color: #164e63; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-track { background: #f1f1f1; } .dark ::-webkit-scrollbar-track { background: #2d3748; } ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+    <button id="theme-toggle" class="fixed bottom-4 right-4 z-50 p-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-md">
+        <svg id="theme-toggle-dark-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+        <svg id="theme-toggle-light-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+    </button>
+    
+    <div id="mobile-menu" class="lg:hidden fixed top-0 left-0 right-0 p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-lg z-40"><div id="mobile-menu-items" class="flex items-center space-x-2 overflow-x-auto pb-1"></div></div>
+    <div class="flex">
+        <aside class="fixed top-0 left-0 h-screen w-64 p-4 border-r border-slate-200 dark:border-slate-800 hidden lg:block"><h2 class="text-xl font-bold mb-4">Índice do Agendamento v2</h2><nav><ol id="sidebar-nav" class="space-y-2"></ol></nav></aside>
+        <main class="w-full lg:ml-64 p-4 md:p-8 pt-20 lg:pt-8 pb-24">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-12"><h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white">Design e UX do Agendamento v2.0</h1><p class="text-lg text-slate-600 dark:text-slate-400 mt-3">Evoluindo a experiência do usuário para um fluxo guiado e intuitivo.</p></header>
+                <div id="manual-content" class="space-y-16">
+                    
+                    <section id="step-1" class="manual-section">
+                        <h2 data-title="Conceito Principal" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">1. O Conceito: "Agendamento Conversacional"</h2>
+                        <p class="text-slate-600 dark:text-slate-400">A versão 2.0 abandona a abordagem de "formulário único" em favor de um **fluxo guiado em etapas (wizard)**. Em vez de sobrecarregar o usuário com todas as opções de uma vez, a interface faz uma pergunta de cada vez, adaptando-se às respostas para apresentar apenas as informações relevantes para o próximo passo.</p>
+                        <div class="mt-6 p-4 bg-cyan-50 dark:bg-slate-800 border-l-4 border-cyan-400 dark:border-cyan-500 rounded">
+                            <p class="font-semibold text-cyan-800 dark:text-cyan-300">Principal Mudança de Paradigma:</p>
+                            <p class="text-sm text-cyan-700 dark:text-cyan-400 mt-1">O fluxo agora começa com **"O quê?"** (Seleção do Serviço) em vez de **"Quando?"** (Seleção da Data). Isso resolve a lógica fundamental, pois a duração do serviço define a disponibilidade de horários.</p>
+                        </div>
+                    </section>
+
+                    <section id="step-2" class="manual-section">
+                        <h2 data-title="Etapa 1: Seleção de Serviço" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">2. Etapa 1: "O que você precisa?"</h2>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">O que o usuário vê:</h3>
+                        <p class="text-slate-600 dark:text-slate-400">A primeira tela apresenta **cards visuais e interativos** para cada serviço disponível. Cada card contém:</p>
+                        <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li>Nome do Serviço (ex: "Consulta Inicial")</li>
+                            <li>Duração (ex: "60 min")</li>
+                            <li>Preço (ex: "R$ 250,00")</li>
+                        </ul>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">Por que é melhor?</h3>
+                        <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li><strong>Início Lógico:</strong> O serviço determina a duração, que é a base para calcular os horários livres.</li>
+                            <li><strong>Foco no Valor:</strong> A experiência começa apresentando o valor (os serviços), não um calendário genérico.</li>
+                            <li><strong>Visualmente Atrativo:</strong> Cards com ícones ou imagens são mais convidativos do que um formulário.</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="step-3" class="manual-section">
+                        <h2 data-title="Etapa 2: Data e Hora" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">3. Etapa 2: "Quando fica bom para você?"</h2>
+                        <p class="text-slate-600 dark:text-slate-400">Após o usuário clicar em um serviço, a tela faz uma transição animada para a seleção de data e horário.</p>
+                         <h3 class="text-xl font-semibold mt-6 mb-2">O que o usuário vê:</h3>
+                         <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li><strong>Mobile:</strong> Um **seletor de datas horizontal e deslizável** com os próximos 7-10 dias.</li>
+                            <li><strong>Desktop:</strong> Um calendário tradicional.</li>
+                            <li>Ao selecionar um dia, a área de horários abaixo é preenchida **dinamicamente** com botões contendo apenas os horários disponíveis, já filtrados pela duração do serviço escolhido.</li>
+                        </ul>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">Por que é melhor?</h3>
+                         <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li><strong>Inteligente e Relevante:</strong> O sistema só mostra horários que realmente comportam o serviço selecionado.</li>
+                            <li><strong>Experiência Mobile Superior:</strong> O seletor horizontal é muito mais amigável ao toque.</li>
+                            <li><strong>Feedback Imediato:</strong> O usuário vê a disponibilidade real instantaneamente.</li>
+                        </ul>
+                    </section>
+
+                    <section id="step-4" class="manual-section">
+                        <h2 data-title="Etapa 3: Dados do Cliente" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">4. Etapa 3: "Confirme seus dados"</h2>
+                        <p class="text-slate-600 dark:text-slate-400">Com o usuário já logado, esta etapa é simplificada ao máximo para reduzir o atrito.</p>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">O que o usuário vê:</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Uma tela de confirmação simples com os dados do usuário pré-preenchidos.</p>
+                        <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li><strong>Nome:</strong> `[Nome do Usuário]` (pré-preenchido, não editável)</li>
+                            <li><strong>Email:</strong> `[Email do Usuário]` (pré-preenchido, não editável)</li>
+                            <li><strong>Telefone (WhatsApp):** `[Telefone do Usuário]` (editável, com uma nota: "Usaremos este número para enviar a confirmação.")</li>
+                        </ul>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">Por que é melhor?</h3>
+                        <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li><strong>Esforço Mínimo:</strong> O usuário não precisa digitar informações que a aplicação já possui.</li>
+                            <li><strong>Foco na Ação:</strong> A única tarefa é verificar o número de telefone e prosseguir.</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="step-5" class="manual-section">
+                        <h2 data-title="Etapa 4: Confirmação Final" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">5. Etapa 4: "Revise e Confirme"</h2>
+                        <p class="text-slate-600 dark:text-slate-400">A etapa final dá ao usuário uma visão completa do seu agendamento antes de confirmar, garantindo segurança e transparência.</p>
+                        <div class="mt-6 p-6 bg-slate-200 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-700">
+                           <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4">Resumo do Agendamento:</h3>
+                           <div class="space-y-2 text-sm">
+                               <p><strong>Serviço:</strong> Consulta Inicial (60 min)</p>
+                               <p><strong>Data:</strong> Sexta-feira, 25 de Julho de 2025</p>
+                               <p><strong>Horário:</strong> 14:00</p>
+                               <p class="mt-4 text-xs text-slate-500 dark:text-slate-400">*Uma notificação de confirmação será enviada para o WhatsApp informado.</p>
+                           </div>
+                           <button class="w-full mt-6 bg-cyan-600 text-white p-3 rounded-lg font-bold">Confirmar Agendamento</button>
+                        </div>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">Por que é melhor?</h3>
+                        <ul class="list-disc list-inside mt-4 space-y-2 pl-4">
+                            <li><strong>Previne Erros:</strong> Permite que o usuário revise tudo antes da confirmação final.</li>
+                            <li><strong>Aumenta a Confiança:</strong> O processo transparente deixa o usuário seguro sobre a ação que está prestes a tomar.</li>
+                        </ul>
+                    </section>
+                    
+                    <section id="step-6" class="manual-section">
+                        <h2 data-title="Impacto Técnico" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">6. Impacto Técnico da Versão 2.0</h2>
+                        <p class="text-slate-600 dark:text-slate-400">A implementação deste novo fluxo exigirá algumas mudanças na estrutura do código:</p>
+                        <ul class="list-disc list-inside mt-4 space-y-3 pl-4">
+                            <li><strong>Gerenciamento de Estado Local:</strong> A página `/agendar` precisará de um estado para controlar a etapa atual do wizard (ex: `const [step, setStep] = useState('service')`).</li>
+                            <li><strong>Animações de Transição:</strong> A biblioteca `Framer Motion` será usada para animar a transição entre as etapas, criando uma experiência fluida.</li>
+                            <li><strong>API de Disponibilidade Aprimorada:</strong> A API ou Server Action que busca horários livres precisará receber o `serviceId` como parâmetro para filtrar os horários com base na duração do serviço.</li>
+                            <li><strong>Novos Componentes:</strong> Será necessário criar novos componentes de UI, como o `ServiceCard` e o `HorizontalDatePicker`.</li>
+                        </ul>
+                         <div class="mt-6 p-4 bg-cyan-50 dark:bg-slate-800 border-l-4 border-cyan-400 dark:border-cyan-500 rounded">
+                            <p class="font-semibold text-cyan-800 dark:text-cyan-300">Conclusão:</p>
+                            <p class="text-sm text-cyan-700 dark:text-cyan-400 mt-1">A Versão 2.0 transforma o agendamento de uma tarefa funcional em uma **experiência agradável, guiada e à prova de erros**, que encanta o usuário e aumenta significativamente a percepção de qualidade do seu serviço.</p>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hljs.highlightAll();
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const updateIcons = () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                } else {
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                }
+            };
+            updateIcons();
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateIcons();
+            });
+            const sections = document.querySelectorAll('.manual-section');
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const mobileMenu = document.getElementById('mobile-menu-items');
+            sections.forEach((section, index) => {
+                const id = section.id;
+                const title = section.querySelector('h2').dataset.title;
+                const step = index + 1;
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#${id}`;
+                a.textContent = `${step}. ${title}`;
+                a.className = 'sidebar-link block border-l-2 border-transparent pl-4 py-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors';
+                li.appendChild(a);
+                if (sidebarNav) sidebarNav.appendChild(li);
+                const mobileLink = document.createElement('a');
+                mobileLink.href = `#${id}`;
+                mobileLink.className = 'mobile-menu-item flex-shrink-0 flex items-center p-1 rounded-full bg-slate-200 dark:bg-slate-700 transition-all duration-300 ease-in-out';
+                mobileLink.innerHTML = `<span class="item-number flex items-center justify-center h-8 w-8 rounded-full font-bold text-slate-600 dark:text-slate-300">${step}</span><span class="item-title hidden ml-2 mr-2 font-semibold whitespace-nowrap text-sm">${title}</span>`;
+                if (mobileMenu) mobileMenu.appendChild(mobileLink);
+                [a, mobileLink].forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const headerOffset = 80;
+                        const elementPosition = section.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                        if (window.innerWidth < 1024) {
+                            document.querySelectorAll('.mobile-menu-item').forEach(item => {
+                                item.classList.remove('expanded', 'bg-cyan-100', 'dark:bg-cyan-900');
+                                item.querySelector('.item-title').classList.add('hidden');
+                            });
+                            mobileLink.classList.add('expanded', 'bg-cyan-100', 'dark:bg-cyan-900');
+                            mobileLink.querySelector('.item-title').classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+            document.querySelectorAll('.code-container pre').forEach(pre => {
+                const btn = document.createElement('button');
+                btn.textContent = 'Copiar';
+                btn.className = 'absolute top-2 right-2 px-2 py-1 text-xs rounded bg-slate-600 text-white hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-800 transition-colors opacity-50 hover:opacity-100';
+                pre.parentNode.insertBefore(btn, pre);
+                btn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(pre.querySelector('code').innerText).then(() => {
+                        btn.textContent = 'Copiado!';
+                        setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+                    });
+                });
+            });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    const sidebarLink = document.querySelector(`.sidebar-link[href="#${id}"]`);
+                    const mobileItem = document.querySelector(`.mobile-menu-item[href="#${id}"]`);
+                    if (entry.isIntersecting) {
+                        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                        if (sidebarLink) sidebarLink.classList.add('active');
+                        document.querySelectorAll('.mobile-menu-item').forEach(i => i.classList.remove('active'));
+                        if (mobileItem) mobileItem.classList.add('active');
+                        if(mobileItem && !mobileItem.classList.contains('expanded')) {
+                           mobileItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    }
+                });
+            }, { rootMargin: "-20% 0px -80% 0px" });
+            sections.forEach(section => observer.observe(section));
+        });
+    </script>
+</body>
+</html>

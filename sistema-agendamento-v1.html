@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-br" class="scroll-smooth dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Construção: Sistema de Agendamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <style>
+        /* Cor de destaque: Ciano (Tech/Agendamento) */
+        .sidebar-link.active { color: #0891b2; font-weight: 600; border-left-color: #0891b2; }
+        .dark .sidebar-link.active { color: #22d3ee; border-left-color: #22d3ee; }
+        .mobile-menu-item .item-number { transition: all 0.3s ease; }
+        .mobile-menu-item.active .item-number { background-color: #0891b2; color: white; }
+        .dark .mobile-menu-item.active .item-number { background-color: #22d3ee; color: #1e293b; }
+        .mobile-menu-item.expanded { background-color: #ecfeff; }
+        .dark .mobile-menu-item.expanded { background-color: #164e63; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-track { background: #f1f1f1; } .dark ::-webkit-scrollbar-track { background: #2d3748; } ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; } ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
+    <button id="theme-toggle" class="fixed bottom-4 right-4 z-50 p-2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-md">
+        <svg id="theme-toggle-dark-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+        <svg id="theme-toggle-light-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+    </button>
+    
+    <div id="mobile-menu" class="lg:hidden fixed top-0 left-0 right-0 p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm shadow-lg z-40"><div id="mobile-menu-items" class="flex items-center space-x-2 overflow-x-auto pb-1"></div></div>
+    <div class="flex">
+        <aside class="fixed top-0 left-0 h-screen w-64 p-4 border-r border-slate-200 dark:border-slate-800 hidden lg:block"><h2 class="text-xl font-bold mb-4">Índice do Projeto</h2><nav><ol id="sidebar-nav" class="space-y-2"></ol></nav></aside>
+        <main class="w-full lg:ml-64 p-4 md:p-8 pt-20 lg:pt-8 pb-24">
+            <div class="max-w-4xl mx-auto">
+                <header class="mb-12"><h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white">Guia de Construção: Sistema de Agendamento</h1><p class="text-lg text-slate-600 dark:text-slate-400 mt-3">Next.js, Supabase, Next-Auth, Tailwind e Shadcn UI.</p></header>
+                <div id="manual-content" class="space-y-16">
+                    
+                    <section id="step-1" class="manual-section">
+                        <h2 data-title="Bloco 0: Fundação" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">1. Bloco 0: A Fundação (Setup e Banco de Dados)</h2>
+                        <p class="text-slate-600 dark:text-slate-400">Esta é a base do projeto. Começamos com a instalação das dependências, configuração do ambiente e, o mais importante, a criação do schema do banco de dados no Supabase.</p>
+                        
+                        <h3 class="text-xl font-semibold mt-6 mb-2">1.1. Instalação de Dependências</h3>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-bash"># Crie o projeto Next.js
+npx create-next-app@latest meu-agendamento --ts --tailwind --eslint
+cd meu-agendamento
+
+# Instale as dependências
+npm install @supabase/supabase-js next-auth@beta @next-auth/supabase-adapter @supabase/auth-helpers-nextjs framer-motion lucide-react
+
+# Configure o Shadcn UI
+npx shadcn-ui@latest init
+npx shadcn-ui@latest add button card input label calendar toast</code></pre>
+                        </div>
+
+                        <h3 class="text-xl font-semibold mt-6 mb-2">1.2. Variáveis de Ambiente (`.env.local`)</h3>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-ini"># Supabase
+NEXT_PUBLIC_SUPABASE_URL="SUA_URL_DO_SUPABASE_AQUI"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="SUA_CHAVE_ANONIMA_PUBLICA_AQUI"
+SUPABASE_SERVICE_ROLE_KEY="SUA_CHAVE_DE_SERVIÇO_SECRETA_AQUI"
+
+# Google OAuth
+GOOGLE_CLIENT_ID="SEU_CLIENT_ID_DO_GOOGLE_AQUI"
+GOOGLE_CLIENT_SECRET="SEU_CLIENT_SECRET_DO_GOOGLE_AQUI"
+
+# Next-Auth
+AUTH_SECRET="SUA_CHAVE_SECRETA_GERADA_COM_NPX_AUTH_SECRET_AQUI"</code></pre>
+                        </div>
+                        
+                        <h3 class="text-xl font-semibold mt-6 mb-2">1.3. Estrutura do Banco de Dados (SQL)</h3>
+                        <p class="text-slate-600 dark:text-slate-400">Execute este script no SQL Editor do Supabase para criar as tabelas e as políticas de segurança.</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-sql">-- Tabela para os serviços oferecidos
+CREATE TABLE public.services (
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+  name TEXT NOT NULL,
+  description TEXT,
+  duration_minutes INT NOT NULL,
+  price NUMERIC(10, 2)
+);
+-- Ativa a segurança em nível de linha (RLS)
+ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
+-- Policies (exemplos, ajuste para sua lógica de admin)
+CREATE POLICY "Serviços são visíveis para todos." ON public.services FOR SELECT USING (true);
+CREATE POLICY "Admins podem gerenciar serviços." ON public.services FOR ALL USING (false); -- Mude para sua lógica de admin
+
+-- Tabela para os horários de atendimento (disponibilidade)
+CREATE TABLE public.availabilities (
+  id INT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  day_of_week INT NOT NULL, -- 0=Domingo, 1=Segunda, ..., 6=Sábado
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL
+);
+ALTER TABLE public.availabilities ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Horários são visíveis para todos." ON public.availabilities FOR SELECT USING (true);
+CREATE POLICY "Admins podem gerenciar horários." ON public.availabilities FOR ALL USING (false); -- Mude para sua lógica de admin
+
+-- Tabela para os agendamentos
+CREATE TABLE public.appointments (
+  id UUID PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  service_id UUID NOT NULL REFERENCES public.services(id) ON DELETE CASCADE,
+  start_time TIMESTAMPTZ NOT NULL,
+  end_time TIMESTAMPTZ NOT NULL,
+  status TEXT DEFAULT 'confirmed' NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Usuários podem gerenciar seus próprios agendamentos." ON public.appointments FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Admins podem ver todos os agendamentos." ON public.appointments FOR SELECT USING (false); -- Mude para sua lógica de admin
+
+-- Inserção de dados de exemplo
+INSERT INTO public.services (name, description, duration_minutes, price) VALUES 
+('Consulta Inicial', 'Avaliação e planejamento.', 60, 250.00),
+('Sessão de Acompanhamento', 'Sessão de 30 minutos.', 30, 150.00);
+
+INSERT INTO public.availabilities (day_of_week, start_time, end_time) VALUES
+(1, '09:00', '18:00'), (2, '09:00', '18:00'), (3, '09:00', '18:00'),
+(4, '09:00', '18:00'), (5, '09:00', '17:00');</code></pre>
+                        </div>
+                    </section>
+
+                    <section id="step-2" class="manual-section">
+                        <h2 data-title="Bloco 1: Autenticação" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">2. Bloco 1: Autenticação com Google e Next-Auth</h2>
+                        <p class="text-slate-600 dark:text-slate-400">Configuramos o Next-Auth para usar o Google como provedor de login e o Supabase como banco de dados para armazenar os usuários e sessões.</p>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">2.1. Configuração do Google OAuth</h3>
+                         <ol class="list-decimal list-inside mt-4 space-y-1 pl-4 text-sm">
+                            <li>Vá ao Google Cloud Console, crie um projeto e uma "ID do cliente OAuth".</li>
+                            <li>Configure a URI de redirecionamento: `http://localhost:3000/api/auth/callback/google`.</li>
+                            <li>Copie o "ID do cliente" e a "Chave secreta do cliente" para o seu `.env.local`.</li>
+                        </ol>
+                        <h3 class="text-xl font-semibold mt-6 mb-2">2.2. Lógica do Next-Auth</h3>
+                        <p class="mt-4 font-mono text-sm bg-slate-200 dark:bg-slate-800 p-1 rounded inline-block">📄 lib/auth.ts</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-typescript">import NextAuth from "next-auth"
+import Google from "next-auth/providers/google"
+import { SupabaseAdapter } from "@next-auth/supabase-adapter"
+
+// NOTA: Para o Adapter, a chave de serviço (service_role) é necessária para
+// contornar as políticas de RLS e gerenciar as tabelas de autenticação.
+// Armazene-a com segurança nas variáveis de ambiente do seu servidor.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+  ],
+  adapter: SupabaseAdapter({
+    url: supabaseUrl,
+    secret: supabaseServiceRoleKey,
+  }),
+  callbacks: {
+    async session({ session, user }) {
+      // Adiciona o ID do usuário da tabela 'users' para a sessão
+      session.user.id = user.id;
+      return session;
+    },
+  },
+})
+</code></pre>
+                        </div>
+                        <p class="mt-4 font-mono text-sm bg-slate-200 dark:bg-slate-800 p-1 rounded inline-block">📄 app/api/auth/[...nextauth]/route.ts</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-typescript">import { handlers } from "@/lib/auth"
+export const { GET, POST } = handlers</code></pre>
+                        </div>
+                    </section>
+                    
+                    <section id="step-3" class="manual-section">
+                        <h2 data-title="Bloco 2: O Agendamento" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">3. Bloco 2: O Coração - A Página de Agendamento</h2>
+                        <p class="text-slate-600 dark:text-slate-400">Esta é a página principal onde o usuário escolhe a data e o horário. Ela será um Client Component (`'use client'`) para lidar com a interatividade.</p>
+                        <div class="mt-4 p-4 bg-yellow-50 dark:bg-slate-800 border-l-4 border-yellow-400 dark:border-yellow-500 rounded">
+                            <h4 class="font-semibold text-yellow-800 dark:text-yellow-300">🔄 Ponto de Atenção (Robustez):</h4>
+                            <p class="text-sm text-yellow-700 dark:text-yellow-400 mt-1">A lógica para buscar os horários disponíveis (`timeSlots`) é a parte mais complexa. Ela deve ser feita no backend (via Server Action ou API Route) e precisa cruzar os dados da tabela `availabilities` com os agendamentos já existentes na tabela `appointments` para um determinado dia.</p>
+                        </div>
+                        <p class="mt-4 font-mono text-sm bg-slate-200 dark:bg-slate-800 p-1 rounded inline-block">📄 app/agendar/page.tsx (Exemplo)</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-tsx">'use client'
+
+import { useState, useEffect } from "react"
+import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button"
+
+export default function AgendarPage() {
+  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [timeSlots, setTimeSlots] = useState<string[]>([])
+  const [selectedSlot, setSelectedSlot] = useState<string>('')
+  
+  useEffect(() => {
+    if (date) {
+      // LÓGICA PARA BUSCAR HORÁRIOS DISPONÍVEIS NO BACKEND
+      // Para este exemplo, usamos dados simulados:
+      setTimeSlots(['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'])
+    }
+  }, [date])
+
+  const handleSchedule = async () => {
+    // LÓGICA PARA CHAMAR A SERVER ACTION QUE CRIA O AGENDAMENTO
+    // E DEPOIS GERAR E ABRIR O LINK DO WHATSAPP
+    const phone = "5562999999999"; // Seu número
+    const message = `Olá! Confirmo meu agendamento para ${date?.toLocaleDateString('pt-BR')} às ${selectedSlot}.`;
+    const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  }
+
+  return (
+    &lt;div className="container mx-auto p-8 grid md:grid-cols-3 gap-8"&gt;
+      &lt;div className="md:col-span-1"&gt;
+        &lt;h2 class="text-xl font-bold mb-4"&gt;1. Selecione a Data&lt;/h2&gt;
+        &lt;Calendar mode="single" selected={date} onSelect={setDate} className="rounded-md border" /&gt;
+      &lt;/div&gt;
+      &lt;div className="md:col-span-2"&gt;
+        &lt;h2 class="text-xl font-bold mb-4"&gt;2. Selecione o Horário&lt;/h2&gt;
+        &lt;div className="grid grid-cols-4 gap-2"&gt;
+          {timeSlots.map(slot => (
+            &lt;Button key={slot} variant={selectedSlot === slot ? "default" : "outline"} onClick={() => setSelectedSlot(slot)}&gt;
+              {slot}
+            &lt;/Button&gt;
+          ))}
+        &lt;/div&gt;
+        &lt;div className="mt-8"&gt;
+          &lt;Button onClick={handleSchedule} disabled={!selectedSlot}&gt;
+            Confirmar e Notificar via WhatsApp
+          &lt;/Button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+                        </div>
+                    </section>
+                    
+                    <section id="step-4" class="manual-section">
+                        <h2 data-title="Bloco 3: Dashboard" class="text-3xl font-bold border-b border-slate-200 dark:border-slate-700 pb-2 mb-4">4. Bloco 3: O Dashboard do Admin</h2>
+                        <p class="text-slate-600 dark:text-slate-400">Esta página (protegida) será um Server Component, buscando os dados dos agendamentos diretamente no servidor para máxima performance e segurança.</p>
+                         <p class="mt-4 font-mono text-sm bg-slate-200 dark:bg-slate-800 p-1 rounded inline-block">📄 app/dashboard/page.tsx</p>
+                        <div class="code-container relative mt-4">
+                            <pre><code class="language-tsx">import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { auth } from '@/lib/auth'; // Importa a sessão do Next-Auth
+
+export default async function DashboardPage() {
+  const session = await auth(); // Pega a sessão no servidor
+  if (!session?.user) {
+    // Redirecionamento ou lógica de acesso negado
+    return &lt;p&gt;Acesso negado.&lt;/p&gt;;
+  }
+
+  const supabase = createServerComponentClient({ cookies });
+  
+  const { data: appointments } = await supabase
+    .from('appointments')
+    .select(`*, users(name, email), services(name)`);
+    
+  return (
+    &lt;div className="container mx-auto p-8"&gt;
+      &lt;h1 className="text-3xl font-bold mb-8"&gt;Dashboard de Agendamentos&lt;/h1&gt;
+      &lt;Card&gt;
+        &lt;CardHeader&gt;&lt;CardTitle&gt;Próximos Agendamentos&lt;/CardTitle&gt;&lt;/CardHeader&gt;
+        &lt;CardContent&gt;
+          &lt;Table&gt;
+            &lt;TableHeader&gt;
+              &lt;TableRow&gt;
+                &lt;TableHead&gt;Cliente&lt;/TableHead&gt;
+                &lt;TableHead&gt;Serviço&lt;/TableHead&gt;
+                &lt;TableHead&gt;Data e Horário&lt;/TableHead&gt;
+              &lt;/TableRow&gt;
+            &lt;/TableHeader&gt;
+            &lt;TableBody&gt;
+              {appointments?.map(app => (
+                &lt;TableRow key={app.id}&gt;
+                  &lt;TableCell&gt;{app.users.name}&lt;/TableCell&gt;
+                  &lt;TableCell&gt;{app.services.name}&lt;/TableCell&gt;
+                  &lt;TableCell&gt;{new Date(app.start_time).toLocaleString('pt-BR')}&lt;/TableCell&gt;
+                &lt;/TableRow&gt;
+              ))}
+            &lt;/TableBody&gt;
+          &lt;/Table&gt;
+        &lt;/CardContent&gt;
+      &lt;/Card&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            hljs.highlightAll();
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+            const updateIcons = () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                } else {
+                    lightIcon.classList.add('hidden');
+                    darkIcon.classList.remove('hidden');
+                }
+            };
+            updateIcons();
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                updateIcons();
+            });
+            const sections = document.querySelectorAll('.manual-section');
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const mobileMenu = document.getElementById('mobile-menu-items');
+            sections.forEach((section, index) => {
+                const id = section.id;
+                const title = section.querySelector('h2').dataset.title;
+                const step = index + 1;
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#${id}`;
+                a.textContent = `${step}. ${title}`;
+                a.className = 'sidebar-link block border-l-2 border-transparent pl-4 py-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors';
+                li.appendChild(a);
+                if (sidebarNav) sidebarNav.appendChild(li);
+                const mobileLink = document.createElement('a');
+                mobileLink.href = `#${id}`;
+                mobileLink.className = 'mobile-menu-item flex-shrink-0 flex items-center p-1 rounded-full bg-slate-200 dark:bg-slate-700 transition-all duration-300 ease-in-out';
+                mobileLink.innerHTML = `<span class="item-number flex items-center justify-center h-8 w-8 rounded-full font-bold text-slate-600 dark:text-slate-300">${step}</span><span class="item-title hidden ml-2 mr-2 font-semibold whitespace-nowrap text-sm">${title}</span>`;
+                if (mobileMenu) mobileMenu.appendChild(mobileLink);
+                [a, mobileLink].forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const headerOffset = 80;
+                        const elementPosition = section.getBoundingClientRect().top;
+                        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                        if (window.innerWidth < 1024) {
+                            document.querySelectorAll('.mobile-menu-item').forEach(item => {
+                                item.classList.remove('expanded', 'bg-cyan-100', 'dark:bg-cyan-900');
+                                item.querySelector('.item-title').classList.add('hidden');
+                            });
+                            mobileLink.classList.add('expanded', 'bg-cyan-100', 'dark:bg-cyan-900');
+                            mobileLink.querySelector('.item-title').classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+            document.querySelectorAll('.code-container pre').forEach(pre => {
+                const btn = document.createElement('button');
+                btn.textContent = 'Copiar';
+                btn.className = 'absolute top-2 right-2 px-2 py-1 text-xs rounded bg-slate-600 text-white hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-800 transition-colors opacity-50 hover:opacity-100';
+                pre.parentNode.insertBefore(btn, pre);
+                btn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(pre.querySelector('code').innerText).then(() => {
+                        btn.textContent = 'Copiado!';
+                        setTimeout(() => { btn.textContent = 'Copiar'; }, 2000);
+                    });
+                });
+            });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    const sidebarLink = document.querySelector(`.sidebar-link[href="#${id}"]`);
+                    const mobileItem = document.querySelector(`.mobile-menu-item[href="#${id}"]`);
+                    if (entry.isIntersecting) {
+                        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+                        if (sidebarLink) sidebarLink.classList.add('active');
+                        document.querySelectorAll('.mobile-menu-item').forEach(i => i.classList.remove('active'));
+                        if (mobileItem) mobileItem.classList.add('active');
+                        if(mobileItem && !mobileItem.classList.contains('expanded')) {
+                           mobileItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    }
+                });
+            }, { rootMargin: "-20% 0px -80% 0px" });
+            sections.forEach(section => observer.observe(section));
+        });
+    </script>
+</body>
+</html>

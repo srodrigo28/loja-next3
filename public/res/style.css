@@ -1,0 +1,215 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+:root {
+  --bg-color: #1a1a1a;
+  --card-bg: #2a2a2a;
+  --text-color: #e0e0e0;
+  --primary-color: #00aaff;
+  --border-color: #444;
+}
+
+/* A regra 'body' conflitante foi removida. 
+  Apenas a fonte é definida aqui para não conflitar com o layout e cores do Tailwind.
+*/
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+/* --- Estilos do Project Card --- */
+
+.project-card {
+  background: var(--card-bg);
+  border-radius: 15px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  max-width: 800px;
+  margin: 20px auto 40px; /* Aumentei a margem inferior */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 170, 255, 0.2);
+}
+
+.project-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.project-info {
+  padding: 25px;
+}
+
+.project-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: var(--primary-color);
+}
+
+.project-summary {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.tech-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.tech-tag {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: #444;
+  color: #fff;
+}
+
+/* Cores específicas para as tecnologias */
+.tech-tag.nextjs { background-color: #000; border: 1px solid #fff; }
+.tech-tag.react { background-color: #20232A; color: #61DAFB; }
+.tech-tag.typescript { background-color: #3178C6; }
+.tech-tag.prisma { background-color: #1B222D; color: #fff; }
+.tech-tag.postgresql { background-color: #336791; }
+.tech-tag.tailwind { background-color: #38B2AC; }
+
+.toggle-dossier-btn {
+  background: none;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.toggle-dossier-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+}
+
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.7s ease-in-out, padding 0.5s ease;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0 25px;
+}
+
+.collapsible-content.open {
+  max-height: 1000px;
+  padding: 25px;
+  border-top: 1px solid var(--border-color);
+}
+
+.dossier-section h3 {
+  border-left: 4px solid var(--primary-color);
+  padding-left: 10px;
+  margin-bottom: 15px;
+  color: var(--text-color);
+}
+
+.dossier-section p, .dossier-section li {
+    color: #b0b0b0;
+}
+
+.screen-details {
+  margin-bottom: 10px;
+}
+
+.screen-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  color: var(--text-color);
+}
+
+.screen-details summary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.screen-details ul {
+  padding: 15px 20px;
+  list-style-type: '✓  ';
+}
+
+
+/* --- Estilos do Menu e Navegação --- */
+
+/* Cor de destaque para o link ativo na sidebar */
+.sidebar-link.active {
+  color: #f1f1f1;
+  font-weight: 600;
+  border-left-color: var(--primary-color);
+}
+
+/* Estilos para o menu colapsável do manual */
+.manual-section-title {
+  cursor: pointer;
+  position: relative;
+  padding-right: 25px;
+  transition: color 0.3s ease;
+}
+
+/* Ícone de seta para indicar o estado aberto/fechado */
+.manual-section-title::after {
+  content: '▼';
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%) scale(0.9);
+  font-size: 1rem;
+  transition: transform 0.4s ease;
+  color: #9ca3af;
+}
+
+.manual-section-title.open::after {
+  transform: translateY(-50%) rotate(180deg) scale(0.9);
+}
+
+.manual-content-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.7s ease-in-out, padding 0.5s ease;
+  padding: 0 1rem;
+}
+
+.manual-content-wrapper.open {
+  max-height: 2000px;
+  padding: 0.5rem 1rem 1rem;
+}
+
+/* Estilos da Barra de Rolagem */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2d3748; /* Fundo escuro para a trilha */
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
