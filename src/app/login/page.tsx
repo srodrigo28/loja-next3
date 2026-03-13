@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { supabase } from '@/lib/supabaseClient'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useUserStore } from '@/store/useUserStore'
@@ -13,36 +12,44 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const setUser = useUserStore((state) => state.setUser)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
     setErro('')
+    setLoading(true)
 
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password: senha,
-    })
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: senha })
+      })
+      
+      const data = await response.json()
 
-    if (authError || !authData.user) {
-      setErro('Email ou senha incorretos.')
-      return
+      if (!response.ok) {
+        setErro(data.error || 'Email ou senha incorretos.')
+        setLoading(false)
+        return
+      }
+
+      // Salva o usuário no contexto do Zustand incluindo o Token
+      setUser({
+        id: data.user_id,
+        nome: data.name,
+        email: email,
+        token: data.access_token
+      })
+
+      router.push('/dashboard')
+    } catch (err) {
+      setErro('Erro de conexão com a API.')
+    } finally {
+      setLoading(false)
     }
-
-    const { data: usuario, error: userError } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('user_id', authData.user.id)
-      .single()
-
-    if (userError || !usuario) {
-      setErro('Usuário não encontrado na base de dados.')
-      return
-    }
-
-    setUser(usuario)
-    router.push('/dashboard')
   }
 
   return (
@@ -85,8 +92,8 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <Button type="submit" className="w-full">
-          Entrar
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? 'Acessando...' : 'Entrar'}
         </Button>
       </motion.form>
     </div>

@@ -2,12 +2,10 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 export interface Usuario {
-  id: number
+  id: string
   nome: string
   email: string
-  telefone: string
-  avatar_url: string
-  papel: string
+  token?: string
 }
 
 interface UserStore {

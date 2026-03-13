@@ -5,8 +5,17 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
   
-  // Exibição da página de dashboard e login continua igual
-  if (url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/login') || url.pathname.startsWith('/api') || url.pathname.startsWith('/_next') || url.pathname.includes('.')) {
+  // Exibição de páginas globais do SaaS (Landing page, Planos, Dashboard, Login)
+  if (
+    url.pathname === '/' ||
+    url.pathname.startsWith('/planos') ||
+    url.pathname.startsWith('/cadastro') ||
+    url.pathname.startsWith('/dashboard') || 
+    url.pathname.startsWith('/login') || 
+    url.pathname.startsWith('/api') || 
+    url.pathname.startsWith('/_next') || 
+    url.pathname.includes('.')
+  ) {
       
     // Verifica auth simples (exemplo original) para a rota dashboard
     if (url.pathname.startsWith('/dashboard')) {

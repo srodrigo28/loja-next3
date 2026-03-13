@@ -4,7 +4,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { supabase } from "@/lib/supabaseClient";
+import { useApi } from '@/hooks/useApi';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
@@ -33,20 +33,21 @@ export function ListarProdutos() {
   const [updatedProduct, setUpdatedProduct] = useState<Produto | null>(null);
 
 
+  const { fetchApi } = useApi();
+
   async function fetchProducts() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('produtos')
-      .select('id, nome, descricao, preco, imagem_principal, imagens_adicionais, ativo')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error("Erro ao buscar produtos:", error);
-      setError(error.message);
-    } else {
-      setProducts(data as Produto[]);
+    try {
+      const response = await fetchApi('/api/admin/produtos/');
+      if (!response.ok) throw new Error('Falha ao carregar produtos');
+      const data = await response.json();
+      setProducts(data);
+    } catch (err: any) {
+      console.error("Erro ao carregar produtos:", err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -59,26 +60,23 @@ export function ListarProdutos() {
   };
 
   const handleDelete = async (productId: string) => {
-    const productToDelete = products.find(p => p.id === productId);
-    if(productToDelete?.imagem_principal){
-      try {
-        const filePath = new URL(productToDelete.imagem_principal).pathname.split('/box/')[1];
-        await supabase.storage.from('box').remove([filePath]);
-      } catch (e) {
-        console.error("Erro ao remover imagem do storage, pode ser que o path seja inválido:", e);
+    // Nota: Como ainda não implementamos integração reversa de Storage via Flask, 
+    // a imagem ficará órfã temporariamente no Supabase bucket, ou você pode
+    // criar um webhook no Flask futuramente.
+    try {
+      const response = await fetchApi(`/api/admin/produtos/${productId}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error || 'Erro ao deletar');
       }
-    }
 
-    const { error } = await supabase
-      .from('produtos')
-      .delete()
-      .match({ id: productId });
-    
-    if (error) {
-      alert("Erro ao excluir produto: " + error.message);
-    } else {
       alert("Produto excluído com sucesso!");
       setProducts(products.filter(p => p.id !== productId));
+    } catch (err: any) {
+      alert("Erro ao excluir produto: " + err.message);
     }
   };
 

@@ -19,6 +19,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Upload, X as XIcon } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { useApi } from "@/hooks/useApi";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -54,6 +55,7 @@ export default function AddProductPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { fetchApi } = useApi();
 
   useEffect(() => {
     return () => {
@@ -98,25 +100,34 @@ export default function AddProductPage() {
     setIsSubmitting(true);
     setError(null);
     try {
-      const userId = "0f621036-b640-44c5-8d8f-bc5d63d97e21";
-      const filePath = `produtos/${userId}/${Date.now()}-${file.name}`;
+      // 1. Upload da imagem para o Supabase Storage
+      const storageFilePath = `produtos/${Date.now()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from("box")
-        .upload(filePath, file);
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = supabase.storage.from("box").getPublicUrl(filePath);
-      const { error: insertError } = await supabase.from("produtos").insert({
-        nome: formData.nome,
-        descricao: formData.descricao || null,
-        preco: formData.preco ? parseFloat(formData.preco) : null,
-        categoria: formData.categoria || null,
-        imagem_principal: publicUrl,
-        link_afiliado: formData.link_afiliado || null,
-        tipo: formData.status, // O nome da coluna na sua tabela é 'tipo'
-        ativo: formData.ativo,
-        usuario_id: userId,
+        .upload(storageFilePath, file);
+        
+      if (uploadError) throw new Error("Erro ao fazer upload da imagem.");
+      
+      const { data: { publicUrl } } = supabase.storage.from("box").getPublicUrl(storageFilePath);
+      
+      // 2. Enviar dados do produto para a nossa API Flask
+      const response = await fetchApi('/api/admin/produtos/', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: formData.nome,
+          description: formData.descricao || '',
+          price: formData.preco ? parseFloat(formData.preco) : 0,
+          stock: 100, // Ajustar depois caso crie campo de estoque
+          image_url: publicUrl,
+        })
       });
-      if (insertError) throw insertError;
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(responseData.error || responseData.message || "Erro ao criar produto na API.");
+      }
+
       alert("Produto cadastrado com sucesso!");
       router.push("/dashboard");
     } catch (err) {

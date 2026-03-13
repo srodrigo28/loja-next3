@@ -157,3 +157,6 @@ O login não precisa ser repetido toda hora
 
 Se quiser ainda mais durabilidade (ex: 7 dias), é só ajustar o JWT expiry.
 ```
+#### Estrutura Multi-Tenant (2026)
+O projeto foi refatorado para suportar múltiplas lojas (SaaS) consumindo de uma API Flask.
+
