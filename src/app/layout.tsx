@@ -1,23 +1,9 @@
-// app/layout.tsx
-import type { Metadata } from "next"
-import localFont from "next/font/local"
-import "./globals.css"
-import ClientProvider from "@/components/ClientProvider"
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-})
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-})
+import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "Minha Loja",
-  description: "Treina-Dev Treinamentos",
+  title: 'Meu SaaS de Lojas',
+  description: 'Plataforma multi-tenancy',
 }
 
 export default function RootLayout({
@@ -27,9 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ClientProvider>{children}</ClientProvider>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

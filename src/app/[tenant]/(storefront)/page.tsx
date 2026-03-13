@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import { Input } from '@/components/ui/input'
@@ -12,29 +11,50 @@ import Link from 'next/link'
 import { HeaderHome } from './_components/home/HeaderHome'
 import FooterHome from './_components/home/FooterHome'
 
-export default function HomePage() {
-  const [produtos, setProdutos] = useState<Produto[]>([])
+export default function HomePage({ params }: { params: { tenant: string } }) {
+  const { tenant } = params
+  const [loja, setLoja] = useState<any>(null)
+  const [produtos, setProdutos] = useState<any[]>([])
   const [busca, setBusca] = useState('')
   const [produtoSelecionado, setProdutoSelecionado] = useState<Produto | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function carregarProdutos() {
-      const { data, error } = await supabase
-        .from('produtos')
-        .select('*')
-        .eq('ativo', true)
-        .order('created_at', { ascending: false })
-
-      if (!error) setProdutos(data || [])
-      setTimeout(() => setLoading(false), 1600)
+    async function carregarDadosLoja() {
+      try {
+        const res = await fetch(`http://127.0.0.1:5000/api/lojas/${tenant}`)
+        if (!res.ok) {
+          console.error("Loja não encontrada")
+          setLoading(false)
+          return
+        }
+        const data = await res.json()
+        setLoja(data)
+        
+        // Mapeando do padrão do Flask (ingles) para o padrão do frontend antigo
+        const formatados = data.produtos.map((p: any) => ({
+          ...p,
+          nome: p.name,
+          descricao: p.description,
+          preco: p.price,
+          imagem_principal: p.image_url || 'https://placehold.co/400x400/png?text=Sem+Imagem'
+        }))
+        
+        setProdutos(formatados)
+      } catch (err) {
+        console.error("Erro ao carregar dados:", err)
+      } finally {
+        setTimeout(() => setLoading(false), 800) // apenas um timer visual suave
+      }
     }
 
-    carregarProdutos()
-  }, [])
+    if (tenant) {
+      carregarDadosLoja()
+    }
+  }, [tenant])
 
   const produtosFiltrados = produtos.filter((produto) =>
-    produto.nome.toLowerCase().includes(busca.toLowerCase())
+    produto.nome?.toLowerCase().includes(busca.toLowerCase())
   )
 
   if (loading) {
@@ -55,6 +75,11 @@ export default function HomePage() {
       <HeaderHome />
 
       <main className="flex-1 max-w-6xl mx-auto px-6 py-10 mt-10 relative">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold text-gray-900 drop-shadow-sm mb-2">Bem-vindo(a) à {loja?.name || 'nossa loja'}!</h1>
+          <p className="text-gray-600 text-lg">{loja?.description}</p>
+        </div>
+
         <Input
           placeholder="Buscar produtos..."
           value={busca}
